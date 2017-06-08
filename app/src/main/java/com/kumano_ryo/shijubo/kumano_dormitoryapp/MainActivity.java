@@ -3,6 +3,7 @@ package com.kumano_ryo.shijubo.kumano_dormitoryapp;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -18,6 +19,9 @@ import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -44,6 +48,9 @@ public class MainActivity extends AppCompatActivity
 
     private IssueData issueData;
     private boolean isCheckStop;
+    private String[] mNavMenu;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
     final String[] fragments = {
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.NewsFragment",
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.IssuesFragment",
@@ -56,7 +63,25 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         issueData = (IssueData)getApplication();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        if(Build.VERSION.SDK_INT >= 21)
+        {
+            // only available for  api 21+
+            setContentView(R.layout.activity_main);
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+        }
+        else
+        {
+            // for below api 20
+            setContentView(R.layout.activity_main_older);
+            mNavMenu = getResources().getStringArray(R.array.nav_menu_array);
+            mDrawerList = (ListView) findViewById(R.id.nav_view_older);
+            // Set the adapter for the list view
+            mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mNavMenu));
+            // Set the list's click listener
+            mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -73,15 +98,13 @@ public class MainActivity extends AppCompatActivity
             }
         });
         */
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
 
         SharedPreferences pref = getSharedPreferences("a1", MODE_PRIVATE);
         final String id = pref.getString("id", "id");
@@ -99,7 +122,14 @@ public class MainActivity extends AppCompatActivity
 
         // 初期画面を設定
         getSupportFragmentManager().beginTransaction().replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[1])).commit();
-        ((NavigationView)findViewById(R.id.nav_view)).setCheckedItem(R.id.nav_issues);
+        if(Build.VERSION.SDK_INT >= 21)
+        {
+            ((NavigationView)findViewById(R.id.nav_view)).setCheckedItem(R.id.nav_issues);
+        }
+        else
+        {
+            mDrawerList.setItemChecked(1, true);
+        }
 
     }
 
@@ -157,7 +187,55 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+    // api 19以下の場合のナビゲーション
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+        {
+            isCheckStop = true;
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            switch(position)
+            {
+                // 寮内周知
+                case 0:
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[0]))
+                            //.addToBackStack(null)
+                            .commit();
+                    break;
+
+                // 新着議案
+                case 1:
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[1]))
+                            //.addToBackStack(null)
+                            .commit();
+                    break;
+
+                // ブロック会議一覧
+                case 2:
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[2]))
+                            //.addToBackStack(null)
+                            .commit();
+                    break;
+
+                // 今週の寮食
+                case 3:
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[3]))
+                            //.addToBackStack(null)
+                            .commit();
+                    break;
+            }
+            // Highlight the selected item, update the title, and close the drawer
+            mDrawerList.setItemChecked(position, true);
+            mDrawerLayout.closeDrawer(mDrawerList);
+        }
+    }
+
+    // api 21以上のナビゲーション
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -209,10 +287,10 @@ public class MainActivity extends AppCompatActivity
 
         */
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
 
     private String getToken()
     {

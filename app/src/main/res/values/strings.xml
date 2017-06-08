@@ -4,6 +4,13 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string-array name="nav_menu_array">
+        <item>寮内周知</item>
+        <item>新着議案</item>
+        <item>ブロック会議一覧</item>
+        <item>今週の寮食</item>
+    </string-array>
+
     <string name="action_settings">Settings</string>
     <string name="next">Next →</string>
     <string name="previous">← Previous</string>
