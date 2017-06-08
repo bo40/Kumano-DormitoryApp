@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.NewsFragment",
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.IssuesFragment",
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.BlockCFragment",
+            "com.kumano_ryo.shijubo.kumano_dormitoryapp.SearchFragment",
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.MenuFragment",
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.IssueDetailFragment",
     };
@@ -221,8 +222,15 @@ public class MainActivity extends AppCompatActivity
                             .commit();
                     break;
 
-                // 今週の寮食
+                // 議案の検索
                 case 3:
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[3]))
+                            //.addToBackStack(null)
+                            .commit();
+
+                // 今週の寮食
+                case 4:
                     fragmentManager.beginTransaction()
                             .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[3]))
                             //.addToBackStack(null)
@@ -272,10 +280,18 @@ public class MainActivity extends AppCompatActivity
                         .commit();
                 break;
 
+            // 議案の検索
+            case R.id.nav_search:
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[3]))
+                        //.addToBackStack(null)
+                        .commit();
+                break;
+
             // 今週の寮食
             case R.id.nav_menu:
                 fragmentManager.beginTransaction()
-                        .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[3]))
+                        .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[4]))
                         //.addToBackStack(null)
                         .commit();
                 break;
