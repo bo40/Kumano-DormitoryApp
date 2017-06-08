@@ -28,7 +28,7 @@
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/nav_menu"
-                    android:icon="@drawable/ic_menu_share"
+                    android:icon="@drawable/ic_menu_retaurant"
                     android:title="今週の寮食" />
             </group>
         </menu>
