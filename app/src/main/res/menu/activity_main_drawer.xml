@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_new"
+            android:icon="@drawable/ic_menu_new"
+            android:title="寮内周知" />
+    </group>
+
+    <item android:title="資料システム">
+        <menu>
+            <group android:checkableBehavior="single">
+
+                <item
+                    android:id="@+id/nav_issues"
+                    android:icon="@drawable/ic_menu_gallery"
+                    android:title="新着議案" />
+                <item
+                    android:id="@+id/nav_block_c"
+                    android:icon="@drawable/ic_menu_block_c"
+                    android:title="ブロック会議一覧" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="寮食メニュー">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_menu"
+                    android:icon="@drawable/ic_menu_share"
+                    android:title="今週の寮食" />
+            </group>
+        </menu>
+    </item>
+</menu>
