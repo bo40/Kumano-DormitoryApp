@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity
         IssuesFragment.OnIssueItemClickedListener,
         BlockCFragment.OnBlockCItemClickedListener,
         BlockCIssuesFragment.OnBlockCIssueItemClickedListener,
-        IssueDetailFragment.OnIssueDataMissingListener
+        IssueDetailFragment.OnIssueDataMissingListener,
+        SearchFragment.OnSearchItemClickedListener
 {
 
     private IssueData issueData;
@@ -375,6 +376,13 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.content_main, issueDetailFragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    // 検索画面の議案をクリックした時
+    @Override
+    public void onSearchItemClicked(int position)
+    {
+
     }
 
     @Override
