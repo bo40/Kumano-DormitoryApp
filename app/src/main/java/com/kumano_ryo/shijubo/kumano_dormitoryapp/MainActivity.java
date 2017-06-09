@@ -229,11 +229,12 @@ public class MainActivity extends AppCompatActivity
                             .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[3]))
                             //.addToBackStack(null)
                             .commit();
+                    break;
 
                 // 今週の寮食
                 case 4:
                     fragmentManager.beginTransaction()
-                            .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[3]))
+                            .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[4]))
                             //.addToBackStack(null)
                             .commit();
                     break;
