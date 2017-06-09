@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class IssueData extends Application {
     public ArrayList<IssueItem> data = new ArrayList<>();
     public ArrayList<IssueItem> bData = new ArrayList<>();
+    public ArrayList<IssueItem> searchData = new ArrayList<>();
     public ArrayList<String> blockCData = new ArrayList<>();
     public ArrayList<String> blockCTitle = new ArrayList<>();
     public void clearData(){

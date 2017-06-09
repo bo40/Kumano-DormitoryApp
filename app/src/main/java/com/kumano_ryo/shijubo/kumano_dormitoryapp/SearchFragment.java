@@ -1,11 +1,9 @@
 package com.kumano_ryo.shijubo.kumano_dormitoryapp;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -21,6 +19,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class SearchFragment extends Fragment {
@@ -31,6 +34,7 @@ public class SearchFragment extends Fragment {
     private static long autoScrollPosition;
     private static boolean isLoading;
     private IssueData issueData;
+    private String searchQuery = "";
 
     public SearchFragment() {
         // Required empty public constructor
@@ -64,17 +68,11 @@ public class SearchFragment extends Fragment {
         llManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llManager);
 
+        // 検索した議案を格納する変数の初期化など
         isLoading = false;
-        if(issueData.data == null)
-        {
-            issueData.data = new ArrayList<>();
-            autoScrollPosition = 0;
-        }
-        else
-        {
-            autoScrollPosition = issueData.data.size();
-        }
-        adapter = new IssuesAdapter(this.getContext(), issueData.data, false);
+        issueData.searchData = new ArrayList<>();
+        autoScrollPosition = 0;
+        adapter = new IssuesAdapter(this.getContext(), issueData.searchData, false);
         recyclerView.setAdapter(adapter);
         adapter.setOnClickListener(new IssuesAdapter.onItemClickListener() {
             @Override
@@ -137,6 +135,9 @@ public class SearchFragment extends Fragment {
         {
             navigation.setCheckedItem(R.id.nav_issues);
         }
+        // プログレスバーの取得
+        mProgressbar = (ProgressBar) view.findViewById(R.id.issuesProgressBar);
+        mProgressbar.setVisibility(View.GONE);
 
         // toolbarに検索欄を表示
         Toolbar  toolbar = (Toolbar)getActivity().findViewById(R.id.toolbar);
@@ -145,10 +146,24 @@ public class SearchFragment extends Fragment {
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;
+                mSearchView.clearFocus();
+                String encodedQuery = "";
+                query = query.replace("　", " ").trim();
+                try {
+                    encodedQuery = URLEncoder.encode(query, "utf-8");
+                }catch (UnsupportedEncodingException ue)
+                {
+                    System.out.println(ue);
+                    return false;
+                }
+                // 検索文字の保存
+                searchQuery = encodedQuery;
+                autoScrollPosition = 0;
+                searchIssueData(encodedQuery, 0, 50);
+                return true;
             }
             @Override
-            public boolean onQueryTextChange(String query) {
+            public boolean onQueryTextChange(String newText) {
                 return false;
             }
         });
@@ -164,8 +179,74 @@ public class SearchFragment extends Fragment {
         ((MainActivity) getActivity()).getSupportActionBar().setTitle("議案の検索");
     }
 
-    private void addIssueData(final int start, final int num)
+    private void searchIssueData(final String query, final int start, final int num)
     {
+        // 不正な引数に対しては処理を行わない
+        if(start < 0 || num <= 0)
+        {
+            return;
+        }
+        // プログレスバーを表示する
+        mProgressbar.setVisibility(View.VISIBLE);
+        if(start == 0)
+        {
+            // startが0の場合は最初に検索をした場合
+            if(issueData.searchData.size() > 0)
+            {
+                int size = issueData.searchData.size();
+                for(int i = size -1 ; i >= 0 ; i--)
+                {
+                    issueData.searchData.remove(i);
+                    adapter.notifyItemRemoved(i);
+                }
+            }
+        }
+        else
+        {
+            // startが0ではない場合はスクロールエンドで次の要素の読み込みをする場合
+            if(start + num <= issueData.searchData.size())
+            {
+                // already existing data
+                mProgressbar.setVisibility(View.GONE);
+                return;
+            }
+        }
+        // 検索結果のページ数
+        final int page = start / 50 + 1;
+        // UI操作のためのハンドラー
+        final android.os.Handler handler = new android.os.Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    isLoading = true;
+                    URL url = new URL("http://docs.kumano-ryo.com/search_issue/?page=" + Integer.toString(page) + "&keywords=" + query);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    String str = InputStreamToString(con.getInputStream());
+                    ArrayList<IssueItem> issueItems = new ArrayList<>();
+
+                    // 議案の情報を読み込み
+                    ReadIssueData(str, page, start, num, issueItems);
+                    // 共有のデータに議案情報を格納
+                    for (int i = 0; i < issueItems.size(); i++) {
+                        issueData.searchData.add(issueItems.get(i));
+                        adapter.notifyItemInserted(issueData.searchData.size());
+                    }
+                    isLoading = false;
+                    autoScrollPosition += num;
+                } catch(Exception ex) {
+                    System.out.println(ex);
+                } finally {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mProgressbar.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            }
+        }).start();
+
 
     }
 
@@ -179,6 +260,61 @@ public class SearchFragment extends Fragment {
         }
         br.close();
         return sb.toString();
+    }
+
+    private void ReadIssueData(String str, int page, int start, int num, ArrayList<IssueItem> issueItems)
+    {
+        int position = start - 50 * (page - 1);
+        int sp = 0;
+        for (int i = 0; i < position; i++) {
+            sp = str.indexOf("</dt>", sp) + 1;
+        }
+        while (true) {
+            // start from 0
+            // positionの値をスクレイイピング
+            // urlの値を使う
+            int p1 = str.indexOf("<dt>", sp);
+            if (p1 == -1) {
+                break;
+            }
+            int p2 = str.indexOf("</dt>", sp);
+            sp = p2 + 1;
+            String part = str.substring(p1 + 4, p2 - 1);
+            p1 = part.indexOf("href=\"");
+            p2 = part.indexOf("\">");
+            String path = part.substring(p1 + 6, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get path to issue page
+            p1 = part.indexOf(">");
+            p2 = part.lastIndexOf("<");
+            String title = part.substring(p1 + 1, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get title
+
+            p1 = str.indexOf("<small>", sp);
+            p2 = str.indexOf("<br>", sp);
+            String detail = str.substring(p1 + 7, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get detail
+            if (detail.length() > 130) {
+                detail = detail.substring(0, 130) + "...";
+            }
+
+            p1 = str.indexOf("<b>", sp);
+            p2 = str.indexOf("</b>", sp);
+            String info = str.substring(p1 + 3, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get info
+            if (position + 50 * (page - 1) + 1 > issueData.searchData.size()) {
+                issueItems.add(new IssueItem(0, title, detail, info, path));
+            }
+            position++;
+            if (position + 50 * (page + 1) == start + num) {
+                // end of addition
+                break;
+            }
+            if (position == 50) {
+                position = 0;
+                break;
+            }
+
+        }
     }
 
     private boolean isAutoScroll(int lastInScreen) {
@@ -201,10 +337,10 @@ public class SearchFragment extends Fragment {
     }
 
     private void load() {
-        if (issueData.data.size() >= 1000) {
+        if (issueData.searchData.size() >= 1000) {
             return;
         }
-        addIssueData(issueData.data.size(), 50);
+        searchIssueData(searchQuery, issueData.searchData.size(), 50);
     }
 
     /**
