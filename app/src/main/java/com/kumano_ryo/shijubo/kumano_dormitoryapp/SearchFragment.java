@@ -1,11 +1,9 @@
 package com.kumano_ryo.shijubo.kumano_dormitoryapp;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -31,6 +29,7 @@ public class SearchFragment extends Fragment {
     private static long autoScrollPosition;
     private static boolean isLoading;
     private IssueData issueData;
+    private String searchQuery = "";
 
     public SearchFragment() {
         // Required empty public constructor
@@ -65,16 +64,9 @@ public class SearchFragment extends Fragment {
         recyclerView.setLayoutManager(llManager);
 
         isLoading = false;
-        if(issueData.data == null)
-        {
-            issueData.data = new ArrayList<>();
-            autoScrollPosition = 0;
-        }
-        else
-        {
-            autoScrollPosition = issueData.data.size();
-        }
-        adapter = new IssuesAdapter(this.getContext(), issueData.data, false);
+        issueData.searchData = new ArrayList<>();
+        autoScrollPosition = 0;
+        adapter = new IssuesAdapter(this.getContext(), issueData.searchData, false);
         recyclerView.setAdapter(adapter);
         adapter.setOnClickListener(new IssuesAdapter.onItemClickListener() {
             @Override
@@ -145,6 +137,7 @@ public class SearchFragment extends Fragment {
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                searchIssueData(query, 0, 50);
                 return false;
             }
             @Override
@@ -164,7 +157,7 @@ public class SearchFragment extends Fragment {
         ((MainActivity) getActivity()).getSupportActionBar().setTitle("議案の検索");
     }
 
-    private void addIssueData(final int start, final int num)
+    private void searchIssueData(final String query, final int start, final int num)
     {
 
     }
@@ -201,10 +194,10 @@ public class SearchFragment extends Fragment {
     }
 
     private void load() {
-        if (issueData.data.size() >= 1000) {
+        if (issueData.searchData.size() >= 1000) {
             return;
         }
-        addIssueData(issueData.data.size(), 50);
+        searchIssueData(searchQuery, issueData.searchData.size(), 50);
     }
 
     /**
