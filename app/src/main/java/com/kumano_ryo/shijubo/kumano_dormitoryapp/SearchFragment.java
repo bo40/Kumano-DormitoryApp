@@ -5,8 +5,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +27,7 @@ public class SearchFragment extends Fragment {
     private IssuesAdapter adapter;
     private OnSearchItemClickedListener mListener;
     private ProgressBar mProgressbar;
+    private SearchView mSearchView;
     private static long autoScrollPosition;
     private static boolean isLoading;
     private IssueData issueData;
@@ -133,6 +137,22 @@ public class SearchFragment extends Fragment {
         {
             navigation.setCheckedItem(R.id.nav_issues);
         }
+
+        // toolbarに検索欄を表示
+        Toolbar  toolbar = (Toolbar)getActivity().findViewById(R.id.toolbar);
+        toolbar.inflateMenu(R.menu.search);
+        mSearchView = (SearchView) toolbar.getMenu().findItem(R.id.search).getActionView();
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String query) {
+                return false;
+            }
+        });
+        mSearchView.setIconified(false);
         /*
         // プログレスバーの表示
         mProgressbar = (ProgressBar) view.findViewById(R.id.issuesProgressBar);

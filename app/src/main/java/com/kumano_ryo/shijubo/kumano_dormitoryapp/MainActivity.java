@@ -14,11 +14,13 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -197,6 +199,12 @@ public class MainActivity extends AppCompatActivity
             isCheckStop = true;
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            DrawerLayout root = (DrawerLayout)findViewById(R.id.drawer_layout);
+            View searchView = root.findViewById(R.id.search);
+            if(searchView != null)
+            {
+                root.removeView(searchView);
+            }
             switch(position)
             {
                 // 寮内周知
@@ -256,6 +264,12 @@ public class MainActivity extends AppCompatActivity
         isCheckStop = true;
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        SearchView searchView = (SearchView) findViewById(R.id.search);
+        if(searchView != null)
+        {
+            searchView.clearFocus();
+            ((ViewGroup)searchView.getParent()).removeView(searchView);
+        }
         switch(id)
         {
             // 寮内周知

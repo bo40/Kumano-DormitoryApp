@@ -3,23 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.kumano_ryo.shijubo.kumano_dormitoryapp.SearchFragment">
-
-    <LinearLayout
-        android:orientation="vertical"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_issues"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <SearchView
-            android:id="@+id/search"
-            android:layout_margin="3dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:queryHint="検索"/>
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_issues"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
-
+        android:layout_height="match_parent"/>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
