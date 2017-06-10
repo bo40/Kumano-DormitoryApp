@@ -33,6 +33,7 @@ public class SearchFragment extends Fragment {
     private SearchView mSearchView;
     private static long autoScrollPosition;
     private static boolean isLoading;
+    private static boolean isNewSearch;
     private IssueData issueData;
     private String searchQuery = "";
 
@@ -70,13 +71,17 @@ public class SearchFragment extends Fragment {
 
         // 検索した議案を格納する変数の初期化など
         isLoading = false;
-        issueData.searchData = new ArrayList<>();
-        autoScrollPosition = 0;
+        if(isNewSearch || issueData.searchData == null)
+        {
+            issueData.searchData = new ArrayList<>();
+        }
+        autoScrollPosition = issueData.searchData.size();
         adapter = new IssuesAdapter(this.getContext(), issueData.searchData, false);
         recyclerView.setAdapter(adapter);
         adapter.setOnClickListener(new IssuesAdapter.onItemClickListener() {
             @Override
             public void onClick(View view, int position) {
+                mSearchView.setVisibility(View.GONE);
                 mListener.onSearchItemClicked(position);
             }
         });
@@ -107,8 +112,26 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
+    public void onStart()
+    {
+        super.onStart();
+        assert mSearchView != null;
+        mSearchView.setVisibility(View.VISIBLE);
+        if(isNewSearch)
+        {
+            mSearchView.setIconified(false);
+        }
+        else
+        {
+            mSearchView.clearFocus();
+        }
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        // load fragment as blank search
+        isNewSearch = true;
         if (context instanceof OnSearchItemClickedListener) {
             mListener = (OnSearchItemClickedListener) context;
         } else {
@@ -121,6 +144,9 @@ public class SearchFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mSearchView.clearFocus();
+        mSearchView.setVisibility(View.GONE);
+        mSearchView = null;
     }
 
     /**
@@ -141,12 +167,15 @@ public class SearchFragment extends Fragment {
 
         // toolbarに検索欄を表示
         Toolbar  toolbar = (Toolbar)getActivity().findViewById(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.search);
-        mSearchView = (SearchView) toolbar.getMenu().findItem(R.id.search).getActionView();
+        mSearchView = (SearchView) toolbar.findViewById(R.id.search);
+        if(mSearchView == null)
+        {
+            toolbar.inflateMenu(R.menu.search);
+            mSearchView = (SearchView) toolbar.getMenu().findItem(R.id.search).getActionView();
+        }
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                mSearchView.clearFocus();
                 String encodedQuery = "";
                 query = query.replace("　", " ").trim();
                 try {
@@ -159,20 +188,17 @@ public class SearchFragment extends Fragment {
                 // 検索文字の保存
                 searchQuery = encodedQuery;
                 autoScrollPosition = 0;
+                // set already searched
+                isNewSearch = false;
                 searchIssueData(encodedQuery, 0, 50);
+                mSearchView.clearFocus();
                 return true;
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+                return true;
             }
         });
-        mSearchView.setIconified(false);
-        /*
-        // プログレスバーの表示
-        mProgressbar = (ProgressBar) view.findViewById(R.id.issuesProgressBar);
-        mProgressbar.setVisibility(View.GONE);
-        */
 
         // フラグメントのアプリバーのタイトルを設定
         assert ((MainActivity) getActivity()).getSupportActionBar() != null;
@@ -291,8 +317,9 @@ public class SearchFragment extends Fragment {
 
             p1 = str.indexOf("<small>", sp);
             p2 = str.indexOf("<br>", sp);
-            String detail = str.substring(p1 + 7, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get detail
+            String detail = str.substring(p1 + 7, p2).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
+                    .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ")
+                    .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
             if (detail.length() > 130) {
                 detail = detail.substring(0, 130) + "...";
             }

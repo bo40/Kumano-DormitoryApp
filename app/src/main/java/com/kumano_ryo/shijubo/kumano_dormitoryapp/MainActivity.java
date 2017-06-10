@@ -199,11 +199,11 @@ public class MainActivity extends AppCompatActivity
             isCheckStop = true;
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            DrawerLayout root = (DrawerLayout)findViewById(R.id.drawer_layout);
-            View searchView = root.findViewById(R.id.search);
+            SearchView searchView = (SearchView) findViewById(R.id.search);
             if(searchView != null)
             {
-                root.removeView(searchView);
+                searchView.clearFocus();
+                searchView.setVisibility(View.GONE);
             }
             switch(position)
             {
@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity
         if(searchView != null)
         {
             searchView.clearFocus();
-            ((ViewGroup)searchView.getParent()).removeView(searchView);
+            searchView.setVisibility(View.GONE);
         }
         switch(id)
         {
@@ -323,7 +323,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-
     private String getToken()
     {
         SharedPreferences preferences = getSharedPreferences("a1", MODE_PRIVATE);
@@ -360,7 +359,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onIssueItemClicked(int position){
         isCheckStop = true;
-        IssueDetailFragment issueDetailFragment = IssueDetailFragment.newInstance(position, true);
+        IssueDetailFragment issueDetailFragment = IssueDetailFragment.newInstance(position, 1);
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_main, issueDetailFragment)
@@ -385,7 +384,7 @@ public class MainActivity extends AppCompatActivity
     public void onBlockCIssueItemClicked(int position)
     {
         isCheckStop = true;
-        IssueDetailFragment issueDetailFragment = IssueDetailFragment.newInstance(position, false);
+        IssueDetailFragment issueDetailFragment = IssueDetailFragment.newInstance(position, 0);
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_main, issueDetailFragment)
@@ -397,7 +396,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSearchItemClicked(int position)
     {
-
+        isCheckStop = true;
+        IssueDetailFragment issueDetailFragment = IssueDetailFragment.newInstance(position, 2);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_main,issueDetailFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override

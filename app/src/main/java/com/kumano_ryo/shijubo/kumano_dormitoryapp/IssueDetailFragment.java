@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public class IssueDetailFragment extends Fragment implements View.OnClickListener {
 
     private int position = -1;
-    private boolean fIssues = true;
+    private int viewType = 0;
     private View mView;
     private IssueData issueData;
     private OnIssueDataMissingListener mListener;
@@ -38,11 +38,11 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
     }
 
 
-    public static IssueDetailFragment newInstance(int position, boolean fIssues) {
+    public static IssueDetailFragment newInstance(int position, int viewType) {
         IssueDetailFragment fragment = new IssueDetailFragment();
         Bundle arguments = new Bundle();
         arguments.putInt("issue_position", position);
-        arguments.putBoolean("fIssues", fIssues);
+        arguments.putInt("viewType", viewType);
         fragment.setArguments(arguments);
         return fragment;
     }
@@ -53,7 +53,7 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
         issueData = (IssueData)getActivity().getApplication();
         if (getArguments() != null) {
             position = getArguments().getInt("issue_position");
-            fIssues = getArguments().getBoolean("fIssues");
+            viewType = getArguments().getInt("viewType");
         }
     }
 
@@ -94,9 +94,16 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
         final TextView commentTx = (TextView) mView.findViewById(R.id.issue_detail_comments);
 
         String tmp;
-        if(fIssues)
+        if(viewType > 0)
         {
-            tmp = "http://docs.kumano-ryo.com" + issueData.data.get(position).getUrl();
+            if(viewType == 1)
+            {
+                tmp = "http://docs.kumano-ryo.com" + issueData.data.get(position).getUrl();
+            }
+            else
+            {
+                tmp = "http://docs.kumano-ryo.com" + issueData.searchData.get(position).getUrl();
+            }
             final String path = tmp;
             new Thread(new Runnable() {
                 @Override
@@ -111,15 +118,16 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                         HttpURLConnection con = (HttpURLConnection)url.openConnection();
                         String str = InputStreamToString(con.getInputStream());
 
-                        int p1 = str.indexOf("<pre>");
+                        int p1 = str.indexOf("<dt>本文</dt>");
                         if(p1 == -1)
                         {
                             return;
                         }
-                        int p2 = str.indexOf("</pre>");
+                        p1 = str.indexOf("<dd>",p1);
+                        int p2 = str.indexOf("</dd>",p1);
                         // 議案詳細を取得
-                        detail = str.substring(p1+5, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                .replace("&lt;", "<").replace("&gt;", ">").trim(); // get detail
+                        detail = str.substring(p1+4, p2).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
+                                .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
                         // 表のデータを取得
                         p1 = str.indexOf("<dt>表</dt>");
                         if(p1 != -1)
@@ -210,7 +218,8 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                             }
                             // next previousボタンの有効・無効を設定
                             setEnableButtons(position, true);
-                            if(issueData.data.size() <= position)
+                            int size = (viewType == 1) ? issueData.data.size() : issueData.searchData.size();
+                            if(size <= position)
                             {
                                 mListener.onIssueDataMissing(true);
                                 return;
@@ -220,11 +229,21 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                     });
                 }
             }).start();
-            if(issueData.data.size() > position)
+            int size = (viewType == 1) ? issueData.data.size() : issueData.searchData.size();
+            if(size > position)
             {
-                ((TextView) mView.findViewById(R.id.issue_detail_title)).setText(issueData.data.get(position).getTitle());
-                ((TextView) mView.findViewById(R.id.issue_detail_detail)).setText(issueData.data.get(position).getDetail());
-                ((TextView) mView.findViewById(R.id.issue_detail_info)).setText(issueData.data.get(position).getInfo());
+                if(viewType == 1)
+                {
+                    ((TextView) mView.findViewById(R.id.issue_detail_title)).setText(issueData.data.get(position).getTitle());
+                    ((TextView) mView.findViewById(R.id.issue_detail_detail)).setText(issueData.data.get(position).getDetail());
+                    ((TextView) mView.findViewById(R.id.issue_detail_info)).setText(issueData.data.get(position).getInfo());
+                }
+                else
+                {
+                    ((TextView) mView.findViewById(R.id.issue_detail_title)).setText(issueData.searchData.get(position).getTitle());
+                    ((TextView) mView.findViewById(R.id.issue_detail_detail)).setText(issueData.searchData.get(position).getDetail());
+                    ((TextView) mView.findViewById(R.id.issue_detail_info)).setText(issueData.searchData.get(position).getInfo());
+                }
             }
             else
             {
@@ -280,23 +299,34 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
         switch (v.getId())
         {
             case R.id.next:
-                if(fIssues)
+                switch (viewType)
                 {
-                    if(position < issueData.data.size() -1)
-                    {
-                        position++;
-                        addIssueData();
-                        (getActivity().findViewById(R.id.issue_detail_scroll)).setScrollY(0);
-                    }
-                }
-                else
-                {
-                    if(position < issueData.bData.size() -1)
-                    {
-                        position++;
-                        addIssueData();
-                        ((ScrollView)getActivity().findViewById(R.id.issue_detail_scroll)).setScrollY(0);
-                    }
+                    case 0:
+                        if(position < issueData.bData.size() -1)
+                        {
+                            position++;
+                            addIssueData();
+                            ((ScrollView)getActivity().findViewById(R.id.issue_detail_scroll)).setScrollY(0);
+                        }
+                        break;
+
+                    case 1:
+                        if(position < issueData.data.size() -1)
+                        {
+                            position++;
+                            addIssueData();
+                            (getActivity().findViewById(R.id.issue_detail_scroll)).setScrollY(0);
+                        }
+                        break;
+
+                    case 2:
+                        if(position < issueData.searchData.size() -1)
+                        {
+                            position++;
+                            addIssueData();
+                            (getActivity().findViewById(R.id.issue_detail_scroll)).setScrollY(0);
+                        }
+                        break;
                 }
                 break;
 

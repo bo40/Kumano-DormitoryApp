@@ -135,7 +135,8 @@ public class BlockCIssuesFragment extends Fragment {
                         int p2 = str.indexOf("</h4>", sp);
                         sp = p2 + 1;
                         String title = str.substring(p1+4, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                .replace("&lt;", "<").replace("&gt;", ">").trim(); // get title
+                                .replace("&lt;", "<").replace("&gt;", ">")
+                                .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get title
                         p1 = str.indexOf("<dd>", sp);
                         p2 = str.indexOf("</dd>", sp);
                         String info = "文責者 : " + str.substring(p1+4, p2).replace("&amp;", "&").replace("&quot;", "\"")
@@ -143,9 +144,21 @@ public class BlockCIssuesFragment extends Fragment {
                         p1 = str.indexOf("<pre>", sp);
                         p2 = str.indexOf("</pre>", sp);
                         String detail = str.substring(p1+5, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                .replace("&lt;", "<").replace("&gt;", ">").trim(); // get detail
+                                .replace("&lt;", "<").replace("&gt;", ">")
+                                .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
                         String overView = detail;
-                        if(detail.length() > 130)
+                        // overViewの行数を６行以内で１３０文字以内にする。
+                        int pLine = 0;
+                        for(int i = 0 ; i < 6 ; i++)
+                        {
+                            pLine = overView.indexOf("\n", pLine);
+                            if(pLine == -1) { break; }
+                        }
+                        if(pLine != -1)
+                        {
+                            overView = overView.substring(0, pLine);
+                        }
+                        if(overView.length() > 130)
                         {
                             overView = overView.substring(0, 130) + "...";
                         }

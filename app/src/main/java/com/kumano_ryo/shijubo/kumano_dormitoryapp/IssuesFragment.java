@@ -273,7 +273,9 @@ public class IssuesFragment extends Fragment {
             p1 = str.indexOf("<small>", sp);
             p2 = str.indexOf("<br>", sp);
             String detail = str.substring(p1 + 7, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get detail
+                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get detailint pLine = 0;
+            // 概要表示なので改行をなくす
+            detail = detail.replace("\n", " ");
             if (detail.length() > 130) {
                 detail = detail.substring(0, 130) + "...";
             }
