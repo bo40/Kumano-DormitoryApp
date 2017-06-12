@@ -129,7 +129,7 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                         detail = str.substring(p1+4, p2).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
                                 .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
                         // 表のデータを取得
-                        p1 = str.indexOf("<dt>表</dt>");
+                        p1 = str.indexOf("<table");
                         if(p1 != -1)
                         {
                             // 表のタイトルの配列の初期化
@@ -137,36 +137,60 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                             // 表のデータ
                             ArrayList<ArrayList<String>> table;
                             // 表のタイトルを取得
-                            int endpoint = str.indexOf("</dd>", p1);
-                            p1 = str.indexOf("<caption>", p1);
+                            int endpoint = str.indexOf("</table>", p1);
                             int startpoint = p1 + 9;
                             while(p1 != -1 && p1 < endpoint)
                             {
                                 table = new ArrayList<>();
-                                p2 = str.indexOf("</caption>", p1);
-                                tableTitles.add(str.substring(p1 + 9, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                        .replace("&lt;", "<").replace("&gt;", ">").trim()); // get table title
+                                p2 = p1;
+                                p1 = str.indexOf("<caption>", p1);
+                                if(p1 != -1)
+                                {
+                                    p2 = str.indexOf("</caption>", p1);
+                                    tableTitles.add(str.substring(p1 + 9, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                            .replace("&lt;", "<").replace("&gt;", ">")
+                                            .replace("&nbsp;", " ").replace("&yen;", "¥").trim()); // get table title
+                                }
+                                else
+                                {
+                                    tableTitles.add("");
+                                }
                                 // 表の行を取得するループ
                                 p1 = str.indexOf("<tr>", p2);
                                 while (p1 != -1) {
                                     p2 = str.indexOf("</tr>", p1);
                                     String part = str.substring(p1 + 4, p2).trim();
-                                    int p3 = part.indexOf("<div");
-                                    int p4 = 0;
+                                    boolean isTh = true;
+                                    int p3 = part.indexOf("<th");
                                     ArrayList<String> row = new ArrayList<>();
+                                    if(p3 == -1)
+                                    {
+                                        isTh = false;
+                                        p3 = part.indexOf("<td");
+                                    }
+                                    int p4 = 0;
                                     while (p3 != -1) {
                                         p3 = part.indexOf(">", p3);
-                                        p4 = part.indexOf("</div>", p3);
-                                        row.add(part.substring(p3 + 1, p4).replace("&amp;", "&").replace("&quot;", "\"")
-                                                .replace("&lt;", "<").replace("&gt;", ">").trim());
-                                        p3 = part.indexOf("<div", p4);
+                                        p4 = isTh ? part.indexOf("</th>", p3) : part.indexOf("</td>", p3);
+                                        row.add(part.substring(p3 + 1, p4).replace("\n", "").replace(" ", "").replace("<br/>", "\n")
+                                                .replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
+                                                .replace("&lt;", "<").replace("&gt;", ">")
+                                                .replace("&nbsp;", "").replace("&yen;", "¥").replace("&times;", "×").trim());
+                                        isTh = true;
+                                        p3 = part.indexOf("<th", p4);
+                                        if(p3 == -1)
+                                        {
+                                            isTh = false;
+                                            p3 = part.indexOf("<td", p4);
+                                        }
                                     }
                                     table.add(row);
                                     p1 = str.indexOf("<tr>", p2);
                                 }
                                 tables.add(table);
-                                p1 = str.indexOf("<caption>", startpoint);
+                                p1 = str.indexOf("<table", startpoint);
                                 startpoint = p1 + 9;
+                                endpoint = str.indexOf("</table>", p1);
                             }
                         }
                         // 議事録を取得
@@ -204,14 +228,30 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                                     tableTitle.setVisibility(View.VISIBLE);
                                     tableTitle.setText(finalTableTitles.get(n));
                                     ViewGroup vg_table = (ViewGroup) vg_table_parent.getChildAt(1);
+                                    vg_table.setMinimumWidth(((MainActivity)getActivity()).getDisplaySize() - 100);
+                                    // get max table column size
+                                    int max = 0;
+                                    for(int i = 0 ; i < finalTables.get(n).size() ; i++)
+                                    {
+                                        if(max < finalTables.get(n).get(i).size())
+                                        {
+                                            max = finalTables.get(n).get(i).size();
+                                        }
+                                    }
+                                    // set Values to show
                                     for(int i = 0 ; i < finalTables.get(n).size() ; i++)
                                     {
                                         getActivity().getLayoutInflater().inflate(R.layout.table_row, vg_table);
                                         ViewGroup vg_row = (ViewGroup) vg_table.getChildAt(i);
-                                        for(int j = 0 ; j < finalTables.get(n).get(i).size() ; j++)
+                                        for(int j = 0 ; j < max ; j++)
                                         {
                                             getActivity().getLayoutInflater().inflate(R.layout.table_text, vg_row);
-                                            ((TextView)vg_row.getChildAt(j)).setText(finalTables.get(n).get(i).get(j));
+                                            String value = " ";
+                                            if(j < finalTables.get(n).get(i).size())
+                                            {
+                                                value = finalTables.get(n).get(i).get(j);
+                                            }
+                                            ((TextView)vg_row.getChildAt(j)).setText(value);
                                         }
                                     }
                                 }

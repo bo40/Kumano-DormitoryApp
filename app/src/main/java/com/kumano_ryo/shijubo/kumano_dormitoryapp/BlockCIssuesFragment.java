@@ -151,14 +151,18 @@ public class BlockCIssuesFragment extends Fragment {
                         int pLine = 0;
                         for(int i = 0 ; i < 6 ; i++)
                         {
-                            pLine = overView.indexOf("\n", pLine);
-                            if(pLine == -1) { break; }
+                            pLine = overView.indexOf("\n", pLine) + 1;
+                            if(pLine == 0) { break; }
                         }
-                        if(pLine != -1)
+                        if(pLine != 0)
                         {
                             overView = overView.substring(0, pLine);
+                            if(overView.length() > 90)
+                            {
+                                overView = overView.substring(0, 90) + "...";
+                            }
                         }
-                        if(overView.length() > 130)
+                        else if(overView.length() > 130)
                         {
                             overView = overView.substring(0, 130) + "...";
                         }

@@ -320,6 +320,7 @@ public class SearchFragment extends Fragment {
             String detail = str.substring(p1 + 7, p2).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
                     .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ")
                     .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
+            detail = detail.replace("\n", "");
             if (detail.length() > 130) {
                 detail = detail.substring(0, 130) + "...";
             }

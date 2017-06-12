@@ -3,6 +3,7 @@ package com.kumano_ryo.shijubo.kumano_dormitoryapp;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity
     private String[] mNavMenu;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
+    private int displaySize = 400;
     final String[] fragments = {
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.NewsFragment",
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.IssuesFragment",
@@ -141,6 +144,10 @@ public class MainActivity extends AppCompatActivity
     public void onStart()
     {
         super.onStart();
+        Display display = getWindowManager().getDefaultDisplay();
+        Point point = new Point(400, 0);
+        display.getSize(point);
+        displaySize = point.x;
         isCheckStop = true;
     }
 
@@ -356,6 +363,7 @@ public class MainActivity extends AppCompatActivity
         return rawDt;
     }
 
+    public int getDisplaySize() { return displaySize; }
     @Override
     public void onIssueItemClicked(int position){
         isCheckStop = true;
