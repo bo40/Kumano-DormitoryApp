@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:paddingRight="@dimen/issue_detail_padding"
     android:paddingLeft="@dimen/issue_detail_padding"
-    android:paddingTop="@dimen/issue_detail_padding"
     tools:context="com.kumano_ryo.shijubo.kumano_dormitoryapp.IssueDetailFragment">
 
     <ScrollView
@@ -19,6 +18,7 @@
                 android:id="@+id/issue_detail_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:textSize="22sp"
                 android:textColor="@color/textColor"
                 android:textStyle="bold"

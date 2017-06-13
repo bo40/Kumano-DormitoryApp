@@ -147,7 +147,7 @@ public class BlockCIssuesFragment extends Fragment {
                                 .replace("&lt;", "<").replace("&gt;", ">")
                                 .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
                         String overView = detail;
-                        // overViewの行数を６行以内で１３０文字以内にする。
+                        // overViewの行数を６行以内か１３０文字以内にする。
                         int pLine = 0;
                         for(int i = 0 ; i < 6 ; i++)
                         {

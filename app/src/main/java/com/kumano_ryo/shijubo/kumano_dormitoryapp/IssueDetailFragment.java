@@ -312,14 +312,30 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                         tableTitle.setVisibility(View.VISIBLE);
                         tableTitle.setText(issueData.bData.get(position).getTableTitles().get(n));
                         ViewGroup vg_table = (ViewGroup) vg_table_parent.getChildAt(1);
+                        vg_table.setMinimumWidth(((MainActivity)getActivity()).getDisplaySize() - 100);
+                        // get max table column size
+                        int max = 0;
+                        for(int i = 0 ; i < issueData.bData.get(position).getTables().get(n).size() ; i++)
+                        {
+                            if(max < issueData.bData.get(position).getTables().get(n).get(i).size())
+                            {
+                                max = issueData.bData.get(position).getTables().get(n).get(i).size();
+                            }
+                        }
+                        // set Values to show
                         for(int i = 0 ; i < issueData.bData.get(position).getTables().get(n).size() ; i++)
                         {
                             getActivity().getLayoutInflater().inflate(R.layout.table_row, vg_table);
                             ViewGroup vg_row = (ViewGroup) vg_table.getChildAt(i);
-                            for(int j = 0 ; j < issueData.bData.get(position).getTables().get(n).get(i).size() ; j++)
+                            for(int j = 0 ; j < max ; j++)
                             {
                                 getActivity().getLayoutInflater().inflate(R.layout.table_text, vg_row);
-                                ((TextView)vg_row.getChildAt(j)).setText(issueData.bData.get(position).getTables().get(n).get(i).get(j));
+                                String value = " ";
+                                if(j < issueData.bData.get(position).getTables().get(n).get(i).size())
+                                {
+                                    value = issueData.bData.get(position).getTables().get(n).get(i).get(j);
+                                }
+                                ((TextView)vg_row.getChildAt(j)).setText(value);
                             }
                         }
                     }

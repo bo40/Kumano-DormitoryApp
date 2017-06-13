@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity
         issueData = (IssueData)getApplication();
         super.onCreate(savedInstanceState);
 
+        // ナビゲーションドロワーの設定
         if(Build.VERSION.SDK_INT >= 21)
         {
             // only available for  api 21+
