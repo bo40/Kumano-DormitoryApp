@@ -12,7 +12,9 @@
         <item>今週の寮食</item>
     </string-array>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">設定</string>
+    <string name="settings_password">IDとパスワードの設定</string>
+    <string name="settings_others">その他の設定</string>
     <string name="next">Next →</string>
     <string name="previous">← Previous</string>
 

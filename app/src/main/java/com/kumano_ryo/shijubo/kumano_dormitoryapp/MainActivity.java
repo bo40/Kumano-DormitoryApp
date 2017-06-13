@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity
         final String pass = getToken();
         if(pass == null)
         {
-            ((TextView)findViewById(R.id.caution)).setText("右上のsettingsからIDとパスワードを設定して下さい。");
+            ((TextView)findViewById(R.id.caution)).setText("右上メニューの設定からIDとパスワードを設定して下さい。");
         }
         java.net.Authenticator.setDefault(new Authenticator() {
             @Override
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings_password) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
