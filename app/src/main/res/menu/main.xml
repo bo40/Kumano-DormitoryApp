@@ -2,18 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:title="@string/action_settings">
-        <menu>
-            <item
-                android:id="@+id/action_settings_password"
-                android:orderInCategory="100"
-                android:title="@string/settings_password"
-                app:showAsAction="never" />
-            <item
-                android:id="@+id/action_settings_others"
-                android:orderInCategory="101"
-                android:title="@string/settings_others"
-                app:showAsAction="never" />
-        </menu>
-    </item>
+        android:id="@+id/action_settings_password"
+        android:orderInCategory="100"
+        android:title="@string/settings_password"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings_others"
+        android:orderInCategory="101"
+        android:title="@string/settings_others"
+        app:showAsAction="never" />
 </menu>

@@ -1,4 +1,4 @@
-package com.kumano_ryo.shijubo.kumano_dormitoryapp;
+package com.kumano_ryo.shijubo.kumano_dormitoryapp.Settings;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,12 +16,14 @@ import com.facebook.crypto.Entity;
 import com.facebook.crypto.exception.CryptoInitializationException;
 import com.facebook.crypto.exception.KeyChainException;
 import com.facebook.crypto.util.SystemNativeCryptoLibrary;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.MainActivity;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.R;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
-public class SettingsActivity extends AppCompatActivity implements View.OnClickListener{
+public class PasswordSettingsActivity extends AppCompatActivity implements View.OnClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

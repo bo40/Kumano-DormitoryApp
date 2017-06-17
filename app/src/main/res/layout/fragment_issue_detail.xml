@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:paddingRight="@dimen/issue_detail_padding"
     android:paddingLeft="@dimen/issue_detail_padding"
-    tools:context="com.kumano_ryo.shijubo.kumano_dormitoryapp.IssueDetailFragment">
+    tools:context="com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.IssueDetailFragment">
 
     <ScrollView
         android:id="@+id/issue_detail_scroll"

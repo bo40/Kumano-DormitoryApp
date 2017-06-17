@@ -2,7 +2,7 @@ package com.kumano_ryo.shijubo.kumano_dormitoryapp.data;
 
 import android.app.Application;
 
-import com.kumano_ryo.shijubo.kumano_dormitoryapp.IssueItem;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.IssueItem;
 
 import java.util.ArrayList;
 

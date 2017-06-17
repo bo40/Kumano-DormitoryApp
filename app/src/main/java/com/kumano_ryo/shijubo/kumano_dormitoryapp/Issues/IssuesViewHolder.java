@@ -1,8 +1,10 @@
-package com.kumano_ryo.shijubo.kumano_dormitoryapp;
+package com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
+
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.R;
 
 public class IssuesViewHolder extends RecyclerView.ViewHolder {
     View view;

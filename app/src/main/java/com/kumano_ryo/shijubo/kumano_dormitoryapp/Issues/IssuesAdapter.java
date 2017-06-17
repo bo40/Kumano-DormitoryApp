@@ -1,17 +1,12 @@
-package com.kumano_ryo.shijubo.kumano_dormitoryapp;
+package com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.ViewGroupCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import com.kumano_ryo.shijubo.kumano_dormitoryapp.data.IssueData;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.R;
 
 import java.util.ArrayList;
 

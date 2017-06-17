@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kumano_ryo.shijubo.kumano_dormitoryapp.BlockCFragment">
+    tools:context="com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.BlockCFragment">
 
     <ListView
         android:id="@+id/block_c_list"

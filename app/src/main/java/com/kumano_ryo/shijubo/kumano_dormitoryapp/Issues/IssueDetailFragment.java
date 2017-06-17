@@ -1,4 +1,4 @@
-package com.kumano_ryo.shijubo.kumano_dormitoryapp;
+package com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues;
 
 import android.content.Context;
 import android.net.Uri;
@@ -13,6 +13,8 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.MainActivity;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.R;
 import com.kumano_ryo.shijubo.kumano_dormitoryapp.data.IssueData;
 
 import java.io.BufferedReader;

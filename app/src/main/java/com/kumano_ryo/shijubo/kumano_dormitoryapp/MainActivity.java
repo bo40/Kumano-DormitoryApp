@@ -1,12 +1,11 @@
 package com.kumano_ryo.shijubo.kumano_dormitoryapp;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -22,7 +21,6 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -33,6 +31,9 @@ import com.facebook.android.crypto.keychain.SharedPrefsBackedKeyChain;
 import com.facebook.crypto.exception.CryptoInitializationException;
 import com.facebook.crypto.exception.KeyChainException;
 import com.facebook.crypto.util.SystemNativeCryptoLibrary;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.*;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.Settings.PasswordSettingsActivity;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.Settings.SettingsActivity;
 import com.kumano_ryo.shijubo.kumano_dormitoryapp.data.IssueData;
 import com.facebook.crypto.*;
 
@@ -59,11 +60,11 @@ public class MainActivity extends AppCompatActivity
     private int displaySize = 400;
     final String[] fragments = {
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.NewsFragment",
-            "com.kumano_ryo.shijubo.kumano_dormitoryapp.IssuesFragment",
-            "com.kumano_ryo.shijubo.kumano_dormitoryapp.BlockCFragment",
-            "com.kumano_ryo.shijubo.kumano_dormitoryapp.SearchFragment",
+            "com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.IssuesFragment",
+            "com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.BlockCFragment",
+            "com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.SearchFragment",
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.MenuFragment",
-            "com.kumano_ryo.shijubo.kumano_dormitoryapp.IssueDetailFragment",
+            "com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.IssueDetailFragment",
     };
 
     @Override
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity
         }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         // 前のアクティビティに戻らないようにする
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -129,16 +131,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         // 初期画面を設定
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[1])).commit();
-        if(Build.VERSION.SDK_INT >= 21)
-        {
-            ((NavigationView)findViewById(R.id.nav_view)).setCheckedItem(R.id.nav_issues);
-        }
-        else
-        {
-            mDrawerList.setItemChecked(1, true);
-        }
-
+        setStartView();
     }
 
     @Override
@@ -189,13 +182,18 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings_password) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
-        }
+        switch (id)
+        {
+            case R.id.action_settings_password:
+                Intent intent = new Intent(this, PasswordSettingsActivity.class);
+                startActivity(intent);
+                return true;
 
+            case R.id.action_settings_others:
+                Intent intent1 = new Intent(this, SettingsActivity.class);
+                startActivity(intent1);
+                return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -331,6 +329,39 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    // 初期画面を設定する
+    private void setStartView()
+    {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        int startViewId = Integer.parseInt(pref.getString("start_view", "1"));
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[startViewId])).commit();
+        if(Build.VERSION.SDK_INT >= 21)
+        {
+            int itemId = 0;
+            switch(startViewId)
+            {
+                case 0:
+                    itemId = R.id.nav_new;
+                    break;
+                case 1:
+                    itemId = R.id.nav_issues;
+                    break;
+                case 2:
+                    itemId = R.id.nav_block_c;
+                    break;
+                case 4:
+                    itemId = R.id.nav_menu;
+                    break;
+            }
+            ((NavigationView)findViewById(R.id.nav_view)).setCheckedItem(itemId);
+        }
+        else
+        {
+            mDrawerList.setItemChecked(startViewId, true);
+        }
+    }
+
     private String getToken()
     {
         SharedPreferences preferences = getSharedPreferences("a1", MODE_PRIVATE);
@@ -428,6 +459,7 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
+
             BlockCFragment blockCFragment = BlockCFragment.newInstance();
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
