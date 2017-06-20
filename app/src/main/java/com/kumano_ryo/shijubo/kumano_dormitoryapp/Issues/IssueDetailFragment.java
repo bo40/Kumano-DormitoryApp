@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,6 +99,11 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
         String tmp;
         if(viewType > 0)
         {
+            if(issueData.data.size() <= position)
+            {
+                mListener.onIssueDataMissing(true);
+                return;
+            }
             if(viewType == 1)
             {
                 tmp = "http://docs.kumano-ryo.com" + issueData.data.get(position).getUrl();
@@ -224,7 +230,12 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                                 ViewGroup vg = (ViewGroup) mView.findViewById(R.id.issue_table_container);
                                 for(int n = 0 ; n < finalTables.size() ; n++)
                                 {
-                                    getActivity().getLayoutInflater().inflate(R.layout.issue_table, vg);
+                                    if(getActivity() == null) { return; }
+                                    try {
+                                        getActivity().getLayoutInflater().inflate(R.layout.issue_table, vg);
+                                    } catch(InflateException e) {
+                                        break;
+                                    }
                                     ViewGroup vg_table_parent = (ViewGroup) vg.getChildAt(n);
                                     TextView tableTitle = ((TextView) vg_table_parent.getChildAt(0));
                                     tableTitle.setVisibility(View.VISIBLE);
@@ -243,10 +254,12 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                                     // set Values to show
                                     for(int i = 0 ; i < finalTables.get(n).size() ; i++)
                                     {
+                                        if(getActivity() == null) { return; }
                                         getActivity().getLayoutInflater().inflate(R.layout.table_row, vg_table);
                                         ViewGroup vg_row = (ViewGroup) vg_table.getChildAt(i);
                                         for(int j = 0 ; j < max ; j++)
                                         {
+                                            if(getActivity() == null) { return; }
                                             getActivity().getLayoutInflater().inflate(R.layout.table_text, vg_row);
                                             String value = " ";
                                             if(j < finalTables.get(n).get(i).size())
