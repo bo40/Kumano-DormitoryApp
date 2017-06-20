@@ -26,7 +26,7 @@ public class BlockCIssuesFragment extends Fragment {
 
     private int position;
     private IssuesAdapter adapter;
-    private OnBlockCIssueItemClickedListener mListener;
+    private OnBlockCIssueListener mListener;
     private ProgressBar mProgressBar;
     private Drawable progressBarBackground;
     private IssueData issueData;
@@ -66,7 +66,15 @@ public class BlockCIssuesFragment extends Fragment {
         progressBarBackground.setAlpha(120);
 
         assert ((MainActivity) getActivity()).getSupportActionBar() != null;
-        ((MainActivity) getActivity()).getSupportActionBar().setTitle(issueData.blockCTitle.get(position));
+        if(issueData.blockCData.size() > position)
+        {
+            ((MainActivity) getActivity()).getSupportActionBar().setTitle(issueData.blockCTitle.get(position));
+        }
+        else
+        {
+            mListener.onBlockCIssueDataMissing();
+            return view;
+        }
 
         // RecyclerViewでブロック会議に含まれる議案一覧を表示する
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rv_block_c_issues);
@@ -117,6 +125,7 @@ public class BlockCIssuesFragment extends Fragment {
                     if(issueData.blockCData.size() <= position)
                     {
                         // ブロック会議のデータが存在しない
+                        mListener.onBlockCIssueDataMissing();
                         return;
                     }
                     URL url = new URL("http://docs.kumano-ryo.com" + issueData.blockCData.get(position) + "?page=" + Integer.toString(page));
@@ -258,8 +267,8 @@ public class BlockCIssuesFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnBlockCIssueItemClickedListener) {
-            mListener = (OnBlockCIssueItemClickedListener) context;
+        if (context instanceof OnBlockCIssueListener && context instanceof IssueDetailFragment.OnIssueDataMissingListener) {
+            mListener = (OnBlockCIssueListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnBlockCIssueItemClickedListener");
@@ -282,7 +291,8 @@ public class BlockCIssuesFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnBlockCIssueItemClickedListener {
+    public interface OnBlockCIssueListener {
         void onBlockCIssueItemClicked(int position);
+        void onBlockCIssueDataMissing();
     }
 }

@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener ,
         IssuesFragment.OnIssueItemClickedListener,
         BlockCFragment.OnBlockCItemClickedListener,
-        BlockCIssuesFragment.OnBlockCIssueItemClickedListener,
+        BlockCIssuesFragment.OnBlockCIssueListener,
         IssueDetailFragment.OnIssueDataMissingListener,
         SearchFragment.OnSearchItemClickedListener
 {
@@ -399,6 +399,13 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.content_main, issueDetailFragment)
                 .addToBackStack(null)
                 .commit();
+    }
+    @Override
+    public void onBlockCIssueDataMissing()
+    {
+        issueData.blockCData = null;
+        issueData.blockCTitle = null;
+        onIssueDataMissing(false);
     }
 
     // 検索画面の議案をクリックした時
