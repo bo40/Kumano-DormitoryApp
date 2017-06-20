@@ -15,7 +15,7 @@ android {
         applicationId "com.kumano_ryo.shijubo.kumano_dormitoryapp"
         minSdkVersion 17
         targetSdkVersion 24
-        versionCode 18
+        versionCode 20
         versionName "1.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
