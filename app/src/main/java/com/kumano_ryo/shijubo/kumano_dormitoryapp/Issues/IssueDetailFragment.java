@@ -1,4 +1,4 @@
-package com.kumano_ryo.shijubo.kumano_dormitoryapp;
+package com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues;
 
 import android.content.Context;
 import android.net.Uri;
@@ -14,6 +14,8 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.MainActivity;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.R;
 import com.kumano_ryo.shijubo.kumano_dormitoryapp.data.IssueData;
 
 import java.io.BufferedReader;
@@ -150,7 +152,7 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                                 table = new ArrayList<>();
                                 p2 = p1;
                                 p1 = str.indexOf("<caption>", p1);
-                                if(p1 != -1 && p1 < endpoint)
+                                if(p1 != -1)
                                 {
                                     p2 = str.indexOf("</caption>", p1);
                                     tableTitles.add(str.substring(p1 + 9, p2).replace("&amp;", "&").replace("&quot;", "\"")

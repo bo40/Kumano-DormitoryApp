@@ -1,8 +1,7 @@
-package com.kumano_ryo.shijubo.kumano_dormitoryapp;
+package com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.MainActivity;
+import com.kumano_ryo.shijubo.kumano_dormitoryapp.R;
 import com.kumano_ryo.shijubo.kumano_dormitoryapp.data.IssueData;
 
 import java.io.BufferedReader;
@@ -247,6 +248,54 @@ public class BlockCIssuesFragment extends Fragment {
                                 endpoint = str.indexOf("</table>", p1);
                             }
                         }
+                        /*
+                        p1 = str.indexOf("<dt>表</dt>", sp);
+                        int ep = str.indexOf("<h4>", sp);
+                        if(ep == -1)
+                        {
+                            ep = Integer.MAX_VALUE;
+                        }
+                        if(p1 != -1 && p1 < ep) {
+                            // 表の配列を初期化
+                            tables = new ArrayList<>();
+                            // 表のタイトルの配列の初期化
+                            tableTitles = new ArrayList<>();
+                            // 表のデータ
+                            ArrayList<ArrayList<String>> table;
+                            // 表のタイトルを取得
+                            int endpoint = str.indexOf("</dd>", p1);
+                            p1 = str.indexOf("<caption>", p1);
+                            int startpoint = p1 + 9;
+                            while(p1 != -1 && p1 < endpoint)
+                            {
+                                table = new ArrayList<>();
+                                p2 = str.indexOf("</caption>", p1);
+                                tableTitles.add(str.substring(p1 + 9, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                        .replace("&lt;", "<").replace("&gt;", ">").trim()); // get table title
+                                // 表の行を取得するループ
+                                p1 = str.indexOf("<tr>", p2);
+                                while (p1 != -1 && p1 < ep) {
+                                    p2 = str.indexOf("</tr>", p1);
+                                    String part = str.substring(p1 + 4, p2).trim();
+                                    int p3 = part.indexOf("<div");
+                                    int p4 = 0;
+                                    ArrayList<String> row = new ArrayList<>();
+                                    while (p3 != -1) {
+                                        p3 = part.indexOf(">", p3);
+                                        p4 = part.indexOf("</div>", p3);
+                                        row.add(part.substring(p3 + 1, p4).replace("&amp;", "&").replace("&quot;", "\"")
+                                                .replace("&lt;", "<").replace("&gt;", ">").trim());
+                                        p3 = part.indexOf("<div", p4);
+                                    }
+                                    table.add(row);
+                                    p1 = str.indexOf("<tr>", p2);
+                                }
+                                tables.add(table);
+                                p1 = str.indexOf("<caption>", startpoint);
+                                startpoint = p1 + 9;
+                            }
+                        }
+                        */
                         issueItems.add(new IssueItem(0, title, overView, detail, tableTitles, tables, info, true));
                     }
                     for(int i = 0 ; i < issueItems.size() ; i++)
