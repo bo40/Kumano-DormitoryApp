@@ -165,7 +165,7 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                                 }
                                 // 表の行を取得するループ
                                 p1 = str.indexOf("<tr>", p2);
-                                while (p1 != -1) {
+                                while (p1 != -1 && p1 < endpoint) {
                                     p2 = str.indexOf("</tr>", p1);
                                     String part = str.substring(p1 + 4, p2).trim();
                                     boolean isTh = true;

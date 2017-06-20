@@ -178,9 +178,77 @@ public class BlockCIssuesFragment extends Fragment {
                         }
                         // 表のデータを取得
                         // 表のタイトルの配列
-                        ArrayList<String> tableTitles = null;
+                        ArrayList<String> tableTitles = new ArrayList<>();
                         // 表の配列
-                        ArrayList<ArrayList<ArrayList<String>>> tables = null;
+                        ArrayList<ArrayList<ArrayList<String>>> tables = new ArrayList<>();
+                        // 表のデータを取得
+                        p1 = str.indexOf("<table", sp);
+                        int ep = str.indexOf("<h4>", sp);
+                        if(ep == -1)
+                        {
+                            ep = Integer.MAX_VALUE;
+                        }
+                        if(p1 != -1 && p1 < ep)
+                        {
+                            ArrayList<ArrayList<String>> table;
+                            // 表のタイトルを取得
+                            int endpoint = str.indexOf("</table>", p1);
+                            int startpoint = p1 + 9;
+                            while(p1 != -1 && p1 < endpoint && p1 < ep)
+                            {
+                                table = new ArrayList<>();
+                                p2 = p1;
+                                p1 = str.indexOf("<caption>", p1);
+                                if(p1 != -1)
+                                {
+                                    p2 = str.indexOf("</caption>", p1);
+                                    tableTitles.add(str.substring(p1 + 9, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                            .replace("&lt;", "<").replace("&gt;", ">")
+                                            .replace("&nbsp;", " ").replace("&yen;", "¥").trim()); // get table title
+                                }
+                                else
+                                {
+                                    tableTitles.add("");
+                                }
+                                // 表の行を取得するループ
+                                p1 = str.indexOf("<tr>", p2);
+                                while (p1 != -1 && p1 < endpoint && p1 < ep) {
+                                    p2 = str.indexOf("</tr>", p1);
+                                    String part = str.substring(p1 + 4, p2).trim();
+                                    boolean isTh = true;
+                                    int p3 = part.indexOf("<th");
+                                    ArrayList<String> row = new ArrayList<>();
+                                    if(p3 == -1)
+                                    {
+                                        isTh = false;
+                                        p3 = part.indexOf("<td");
+                                    }
+                                    int p4 = 0;
+                                    while (p3 != -1) {
+                                        p3 = part.indexOf(">", p3);
+                                        p4 = isTh ? part.indexOf("</th>", p3) : part.indexOf("</td>", p3);
+                                        row.add(part.substring(p3 + 1, p4).replace("\n", "").replace(" ", "").replace("<br/>", "\n")
+                                                .replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
+                                                .replace("&lt;", "<").replace("&gt;", ">")
+                                                .replace("&nbsp;", "").replace("&yen;", "¥").replace("&times;", "×").trim());
+                                        isTh = true;
+                                        p3 = part.indexOf("<th", p4);
+                                        if(p3 == -1)
+                                        {
+                                            isTh = false;
+                                            p3 = part.indexOf("<td", p4);
+                                        }
+                                    }
+                                    table.add(row);
+                                    p1 = str.indexOf("<tr>", p2);
+                                }
+                                tables.add(table);
+                                p1 = str.indexOf("<table", startpoint);
+                                startpoint = p1 + 9;
+                                endpoint = str.indexOf("</table>", p1);
+                            }
+                        }
+                        /*
                         p1 = str.indexOf("<dt>表</dt>", sp);
                         int ep = str.indexOf("<h4>", sp);
                         if(ep == -1)
@@ -227,6 +295,7 @@ public class BlockCIssuesFragment extends Fragment {
                                 startpoint = p1 + 9;
                             }
                         }
+                        */
                         issueItems.add(new IssueItem(0, title, overView, detail, tableTitles, tables, info, true));
                     }
                     for(int i = 0 ; i < issueItems.size() ; i++)
