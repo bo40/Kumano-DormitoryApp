@@ -191,7 +191,10 @@ public class SearchFragment extends Fragment {
                 // set already searched
                 isNewSearch = false;
                 searchIssueData(encodedQuery, 0, 50);
-                mSearchView.clearFocus();
+                if(mSearchView!=null)
+                {
+                    mSearchView.clearFocus();
+                }
                 return true;
             }
             @Override
@@ -244,32 +247,32 @@ public class SearchFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    isLoading = true;
-                    URL url = new URL("http://docs.kumano-ryo.com/search_issue/?page=" + Integer.toString(page) + "&keywords=" + query);
-                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                    String str = InputStreamToString(con.getInputStream());
-                    ArrayList<IssueItem> issueItems = new ArrayList<>();
+            try {
+                isLoading = true;
+                URL url = new URL("http://docs.kumano-ryo.com/search_issue/?page=" + Integer.toString(page) + "&keywords=" + query);
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                String str = InputStreamToString(con.getInputStream());
+                ArrayList<IssueItem> issueItems = new ArrayList<>();
 
-                    // 議案の情報を読み込み
-                    ReadIssueData(str, page, start, num, issueItems);
-                    // 共有のデータに議案情報を格納
-                    for (int i = 0; i < issueItems.size(); i++) {
-                        issueData.searchData.add(issueItems.get(i));
-                        adapter.notifyItemInserted(issueData.searchData.size());
-                    }
-                    isLoading = false;
-                    autoScrollPosition += num;
-                } catch(Exception ex) {
-                    System.out.println(ex);
-                } finally {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mProgressbar.setVisibility(View.GONE);
-                        }
-                    });
+                // 議案の情報を読み込み
+                ReadIssueData(str, page, start, num, issueItems);
+                // 共有のデータに議案情報を格納
+                for (int i = 0; i < issueItems.size(); i++) {
+                    issueData.searchData.add(issueItems.get(i));
+                    adapter.notifyItemInserted(issueData.searchData.size());
                 }
+                isLoading = false;
+                autoScrollPosition += num;
+            } catch(Exception ex) {
+                System.out.println(ex);
+            } finally {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mProgressbar.setVisibility(View.GONE);
+                    }
+                });
+            }
             }
         }).start();
 
