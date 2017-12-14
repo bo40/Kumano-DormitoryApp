@@ -35,6 +35,7 @@ public class BlockCIssuesFragment extends Fragment {
         // Required empty public constructor
     }
 
+    // positionにブロック会議日程のインデックスが渡ってくる
     public static BlockCIssuesFragment newInstance(int position) {
         BlockCIssuesFragment fragment = new BlockCIssuesFragment();
         Bundle args = new Bundle();
@@ -120,6 +121,7 @@ public class BlockCIssuesFragment extends Fragment {
             public void run() {
             try {
                 int page = 1;
+                boolean fFirst = true;
                 while(true)
                 {
                     if(issueData.blockCData.size() <= position)
@@ -128,10 +130,99 @@ public class BlockCIssuesFragment extends Fragment {
                         mListener.onBlockCIssueDataMissing();
                         return;
                     }
+                    ArrayList<IssueItem> issueItems = new ArrayList<>();
+
+                    if (fFirst)
+                    {
+                        fFirst = false;
+                        // ブロック会議のゼロ番の取得
+                        if(issueData.blockCTitle.size() > position +1)
+                        {
+                            String preBlockCTitle = issueData.blockCTitle.get(position +1);
+                            String title = "【0】前回のブロック会議から";
+                            String info = "資料システム";
+
+                            URL url0 = new URL("http://docs.kumano-ryo.com/browse_issue/");
+                            HttpURLConnection con = (HttpURLConnection)url0.openConnection();
+                            String str0 = InputStreamToString(con.getInputStream());
+                            int p1 = 0;
+                            String detail = "";
+                            p1 = str0.indexOf("<b>", p1);
+                            while(p1 != -1)
+                            {
+                                int p2 = str0.indexOf(":", p1);
+                                String blockC = str0.substring(p1+3, p2) + "のブロック会議";
+                                if (blockC.equals(preBlockCTitle))
+                                {
+                                    // 前回のブロック会議の議案の場合は議事録を取得する。
+                                    int p3 = str0.lastIndexOf("<a href=\"", p1);
+                                    int p4 = str0.indexOf("\"", p3+9);
+                                    String path = str0.substring(p3+9, p4);
+                                    p3 = str0.indexOf(">", p3+1);
+                                    p4 = str0.indexOf("<", p3);
+                                    String issueTitle = str0.substring(p3+1, p4).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
+                                            .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
+                                    URL urln = new URL("http://docs.kumano-ryo.com" + path);
+                                    HttpURLConnection conn = (HttpURLConnection)urln.openConnection();
+                                    String strn = InputStreamToString(conn.getInputStream());
+                                    String comments = "";
+                                    int p5 = strn.indexOf("<h3 class='page-header'>議事録");
+                                    if(p5 !=  -1)
+                                    {
+                                        while(true)
+                                        {
+                                            int sp = p5;
+                                            p5 = strn.indexOf("<dt>", sp);
+                                            if(p5 == -1)
+                                            {
+                                                break;
+                                            }
+                                            int p6 = strn.indexOf("</dt>", p5);
+                                            comments = comments + "---< " + strn.substring(p5+4,p6).trim() + " >---\n";
+                                            p5 = strn.indexOf("<pre>", p6);
+                                            p6 = strn.indexOf("</pre>", p5);
+                                            comments = comments + strn.substring(p5+5, p6).replace("&amp;", "&").replace("&quot;", "\"")
+                                                    .replace("&lt;", "<").replace("&gt;", ">").trim() + "\n\n";
+                                        }
+                                    }
+                                    if (!comments.equals(""))
+                                    {
+                                        detail = detail +"================================\n《" + issueTitle + "》" + "への意見\n" + comments;
+                                    }
+                                }
+                                p1 = str0.indexOf("<b>", p1+1);
+                            }
+
+                            String overView = detail;
+                            // overViewの行数を６行以内か１３０文字以内にする。
+                            int pLine = 0;
+                            for(int i = 0 ; i < 6 ; i++)
+                            {
+                                pLine = overView.indexOf("\n", pLine) + 1;
+                                if(pLine == 0) { break; }
+                            }
+                            if(pLine != 0)
+                            {
+                                overView = overView.substring(0, pLine);
+                                if(overView.length() > 90)
+                                {
+                                    overView = overView.substring(0, 90) + "...";
+                                }
+                            }
+                            else if(overView.length() > 130)
+                            {
+                                overView = overView.substring(0, 130) + "...";
+                            }
+                            ArrayList<String> tableTitles = new ArrayList<>();
+                            // 表の配列
+                            ArrayList<ArrayList<ArrayList<String>>> tables = new ArrayList<>();
+                            issueItems.add(new IssueItem(0, title, overView, detail, tableTitles, tables, info, true));
+                        }
+                    }
+
                     URL url = new URL("http://docs.kumano-ryo.com" + issueData.blockCData.get(position) + "?page=" + Integer.toString(page));
                     HttpURLConnection con = (HttpURLConnection)url.openConnection();
                     String str = InputStreamToString(con.getInputStream());
-                    ArrayList<IssueItem> issueItems = new ArrayList<>();
                     int sp = 0;
                     while(true)
                     {
