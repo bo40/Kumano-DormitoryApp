@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity
             }
             switch(position)
             {
-                // 寮内周知
+                // 寮生大会議事録
                 case 0:
                     fragmentManager.beginTransaction()
                             .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[0]))
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity
         }
         switch(id)
         {
-            // 寮内周知
+            // 寮生大会議事録
             case R.id.nav_new:
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_main, Fragment.instantiate(MainActivity.this, fragments[0]))
