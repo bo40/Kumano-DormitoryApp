@@ -234,6 +234,11 @@ public class BlockCIssuesFragment extends Fragment {
                         }
                         int p2 = str.indexOf("</h4>", sp);
                         sp = p2 + 1;
+                        int ep = str.indexOf("<h4>", sp);
+                        if(ep == -1)
+                        {
+                            ep = Integer.MAX_VALUE;
+                        }
                         String title = str.substring(p1+4, p2).replace("&amp;", "&").replace("&quot;", "\"")
                                 .replace("&lt;", "<").replace("&gt;", ">")
                                 .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get title
@@ -246,6 +251,18 @@ public class BlockCIssuesFragment extends Fragment {
                         String detail = str.substring(p1+5, p2).replace("&amp;", "&").replace("&quot;", "\"")
                                 .replace("&lt;", "<").replace("&gt;", ">")
                                 .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
+                        // 採決項目がある場合
+                        p1 = str.indexOf("<dt>採決項目</dt>", p1);
+                        if (p1 != -1 && p1 < ep)
+                        {
+                            p1 = str.indexOf("<dd>", p1);
+                            p2 = str.indexOf("</dd>", p1);
+                            detail += "\n\n【採決項目】\n" + str.substring(p1+4, p2).replaceAll("<.+?>", "").replace("&amp;", "&")
+                                    .replace("&quot;", "\"").replace("&lt;", "<")
+                                    .replace("&gt;", ">").replace("&nbsp;", " ")
+                                    .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail ;
+                        }
+
                         String overView = detail;
                         // overViewの行数を６行以内か１３０文字以内にする。
                         int pLine = 0;
@@ -273,11 +290,6 @@ public class BlockCIssuesFragment extends Fragment {
                         ArrayList<ArrayList<ArrayList<String>>> tables = new ArrayList<>();
                         // 表のデータを取得
                         p1 = str.indexOf("<table", sp);
-                        int ep = str.indexOf("<h4>", sp);
-                        if(ep == -1)
-                        {
-                            ep = Integer.MAX_VALUE;
-                        }
                         if(p1 != -1 && p1 < ep)
                         {
                             ArrayList<ArrayList<String>> table;

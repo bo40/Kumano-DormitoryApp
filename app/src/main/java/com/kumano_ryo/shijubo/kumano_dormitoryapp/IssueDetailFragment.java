@@ -134,6 +134,18 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                         // 議案詳細を取得
                         detail = str.substring(p1+4, p2).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
                                 .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
+                        // 議案詳細に採決項目を追加する
+                        p1 = str.indexOf("<dt>採決項目</dt>", p1);
+                        if (p1 != -1)
+                        {
+                            p1 = str.indexOf("<dd>", p1);
+                            p2 = str.indexOf("</dd>", p1);
+                            detail += "\n\n【採決項目】\n" + str.substring(p1+4, p2).replaceAll("<.+?>", "").replace("&amp;", "&")
+                                    .replace("&quot;", "\"").replace("&lt;", "<")
+                                    .replace("&gt;", ">").replace("&nbsp;", " ")
+                                    .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail ;
+                        }
+
                         // 表のデータを取得
                         p1 = str.indexOf("<table");
                         if(p1 != -1)
