@@ -136,6 +136,18 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                         // 議案詳細を取得
                         detail = str.substring(p1+4, p2).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
                                 .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
+                        // 議案詳細に採決項目を追加する
+                        p1 = str.indexOf("<dt>採決項目</dt>", p1);
+                        if (p1 != -1)
+                        {
+                            p1 = str.indexOf("<dd>", p1);
+                            p2 = str.indexOf("</dd>", p1);
+                            detail += "\n\n【採決項目】\n" + str.substring(p1+4, p2).replaceAll("<.+?>", "").replace("&amp;", "&")
+                                    .replace("&quot;", "\"").replace("&lt;", "<")
+                                    .replace("&gt;", ">").replace("&nbsp;", " ")
+                                    .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail ;
+                        }
+
                         // 表のデータを取得
                         p1 = str.indexOf("<table");
                         if(p1 != -1)
@@ -152,7 +164,7 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                                 table = new ArrayList<>();
                                 p2 = p1;
                                 p1 = str.indexOf("<caption>", p1);
-                                if(p1 != -1)
+                                if(p1 != -1 && p1 < endpoint)
                                 {
                                     p2 = str.indexOf("</caption>", p1);
                                     tableTitles.add(str.substring(p1 + 9, p2).replace("&amp;", "&").replace("&quot;", "\"")
@@ -165,7 +177,7 @@ public class IssueDetailFragment extends Fragment implements View.OnClickListene
                                 }
                                 // 表の行を取得するループ
                                 p1 = str.indexOf("<tr>", p2);
-                                while (p1 != -1) {
+                                while (p1 != -1 && p1 < endpoint) {
                                     p2 = str.indexOf("</tr>", p1);
                                     String part = str.substring(p1 + 4, p2).trim();
                                     boolean isTh = true;
