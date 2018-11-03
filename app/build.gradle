@@ -7,8 +7,8 @@ android {
         applicationId "com.kumano_ryo.shijubo.kumano_dormitoryapp"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 25
-        versionName "1.5"
+        versionCode 26
+        versionName "1.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

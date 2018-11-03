@@ -191,13 +191,20 @@ public class IssuesFragment extends Fragment {
             public void run() {
             try {
                 isLoading = true;
-                URL url = new URL("http://docs.kumano-ryo.com/browse_issue/?page=" + Integer.toString(page));
-                HttpURLConnection con = (HttpURLConnection) url.openConnection();
-                String str = InputStreamToString(con.getInputStream());
+                int index = 0;
                 ArrayList<IssueItem> issueItems = new ArrayList<>();
-
-                // 議案の情報を読み込み
-                ReadIssueData(str, page, start, num, issueItems);
+                while (index < MainActivity.domains.length) {
+                    URL url = new URL("http://docs." + MainActivity.domains[index] + "/browse_issue/?page=" + Integer.toString(page));
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    String str = InputStreamToString(con.getInputStream());
+                    issueItems = new ArrayList<>();
+                    // 議案の情報を読み込み
+                    ReadIssueData(str, page, start, num, issueItems);
+                    if (issueItems.size() > 0) {
+                        break;
+                    }
+                    index++;
+                }
                 // 共有のデータに議案情報を格納
                 for (int i = 0; i < issueItems.size(); i++) {
                     issueData.data.add(issueItems.get(i));

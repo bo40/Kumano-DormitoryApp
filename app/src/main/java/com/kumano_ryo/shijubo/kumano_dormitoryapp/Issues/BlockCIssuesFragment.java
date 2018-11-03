@@ -133,6 +133,7 @@ public class BlockCIssuesFragment extends Fragment {
                     }
                     ArrayList<IssueItem> issueItems = new ArrayList<>();
 
+                    boolean fFirstExist = false;
                     if (fFirst)
                     {
                         fFirst = false;
@@ -143,215 +144,214 @@ public class BlockCIssuesFragment extends Fragment {
                             String title = "【0】前回のブロック会議から";
                             String info = "資料システム";
 
-                            URL url0 = new URL("http://docs.kumano-ryo.com/browse_issue/");
-                            HttpURLConnection con = (HttpURLConnection)url0.openConnection();
-                            String str0 = InputStreamToString(con.getInputStream());
-                            int p1 = 0;
-                            String detail = "";
-                            p1 = str0.indexOf("<b>", p1);
-                            while(p1 != -1)
-                            {
-                                int p2 = str0.indexOf(":", p1);
-                                String blockC = str0.substring(p1+3, p2) + "のブロック会議";
-                                if (blockC.equals(preBlockCTitle))
-                                {
-                                    // 前回のブロック会議の議案の場合は議事録を取得する。
-                                    int p3 = str0.lastIndexOf("<a href=\"", p1);
-                                    int p4 = str0.indexOf("\"", p3+9);
-                                    String path = str0.substring(p3+9, p4);
-                                    p3 = str0.indexOf(">", p3+1);
-                                    p4 = str0.indexOf("<", p3);
-                                    String issueTitle = str0.substring(p3+1, p4).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
-                                            .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
-                                    URL urln = new URL("http://docs.kumano-ryo.com" + path);
-                                    HttpURLConnection conn = (HttpURLConnection)urln.openConnection();
-                                    String strn = InputStreamToString(conn.getInputStream());
-                                    String comments = "";
-                                    int p5 = strn.indexOf("<h3 class='page-header'>議事録");
-                                    if(p5 !=  -1)
-                                    {
-                                        while(true)
-                                        {
-                                            int sp = p5;
-                                            p5 = strn.indexOf("<dt>", sp);
-                                            if(p5 == -1)
-                                            {
-                                                break;
+                            int index = 0;
+                            while (index < MainActivity.domains.length) {
+                                URL url0 = new URL("http://docs." + MainActivity.domains[index] + "/browse_issue/");
+                                HttpURLConnection con = (HttpURLConnection) url0.openConnection();
+                                String str0 = InputStreamToString(con.getInputStream());
+                                int p1 = 0;
+                                String detail = "";
+                                p1 = str0.indexOf("<b>", p1);
+                                while (p1 != -1) {
+                                    int p2 = str0.indexOf(":", p1);
+                                    String blockC = str0.substring(p1 + 3, p2) + "のブロック会議";
+                                    if (blockC.equals(preBlockCTitle)) {
+                                        // 前回のブロック会議の議案の場合は議事録を取得する。
+                                        int p3 = str0.lastIndexOf("<a href=\"", p1);
+                                        int p4 = str0.indexOf("\"", p3 + 9);
+                                        String path = str0.substring(p3 + 9, p4);
+                                        p3 = str0.indexOf(">", p3 + 1);
+                                        p4 = str0.indexOf("<", p3);
+                                        String issueTitle = str0.substring(p3 + 1, p4).replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
+                                                .replace("&lt;", "<").replace("&gt;", ">").replace("&nbsp;", " ").replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
+                                        URL urln = new URL("http://docs." + MainActivity.domains[index] + path);
+                                        HttpURLConnection conn = (HttpURLConnection) urln.openConnection();
+                                        String strn = InputStreamToString(conn.getInputStream());
+                                        String comments = "";
+                                        int p5 = strn.indexOf("<h3 class='page-header'>議事録");
+                                        if (p5 != -1) {
+                                            while (true) {
+                                                int sp = p5;
+                                                p5 = strn.indexOf("<dt>", sp);
+                                                if (p5 == -1) {
+                                                    break;
+                                                }
+                                                int p6 = strn.indexOf("</dt>", p5);
+                                                comments = comments + "---< " + strn.substring(p5 + 4, p6).trim() + " >---\n";
+                                                p5 = strn.indexOf("<pre>", p6);
+                                                p6 = strn.indexOf("</pre>", p5);
+                                                comments = comments + strn.substring(p5 + 5, p6).replace("&amp;", "&").replace("&quot;", "\"")
+                                                        .replace("&lt;", "<").replace("&gt;", ">").trim() + "\n\n";
                                             }
-                                            int p6 = strn.indexOf("</dt>", p5);
-                                            comments = comments + "---< " + strn.substring(p5+4,p6).trim() + " >---\n";
-                                            p5 = strn.indexOf("<pre>", p6);
-                                            p6 = strn.indexOf("</pre>", p5);
-                                            comments = comments + strn.substring(p5+5, p6).replace("&amp;", "&").replace("&quot;", "\"")
-                                                    .replace("&lt;", "<").replace("&gt;", ">").trim() + "\n\n";
+                                        }
+                                        if (!comments.equals("")) {
+                                            detail = detail + "================================\n《" + issueTitle + "》" + "への意見\n" + comments;
                                         }
                                     }
-                                    if (!comments.equals(""))
-                                    {
-                                        detail = detail +"================================\n《" + issueTitle + "》" + "への意見\n" + comments;
+                                    p1 = str0.indexOf("<b>", p1 + 1);
+                                }
+
+                                String overView = detail;
+                                // overViewの行数を６行以内か１３０文字以内にする。
+                                int pLine = 0;
+                                for (int i = 0; i < 6; i++) {
+                                    pLine = overView.indexOf("\n", pLine) + 1;
+                                    if (pLine == 0) {
+                                        break;
                                     }
                                 }
-                                p1 = str0.indexOf("<b>", p1+1);
+                                if (pLine != 0) {
+                                    overView = overView.substring(0, pLine);
+                                    if (overView.length() > 90) {
+                                        overView = overView.substring(0, 90) + "...";
+                                    }
+                                } else if (overView.length() > 130) {
+                                    overView = overView.substring(0, 130) + "...";
+                                }
+                                ArrayList<String> tableTitles = new ArrayList<>();
+                                // 表の配列
+                                ArrayList<ArrayList<ArrayList<String>>> tables = new ArrayList<>();
+                                if (overView.length() > 0 && detail.length() > 0) {
+                                    issueItems.add(new IssueItem(0, title, overView, detail, tableTitles, tables, info, true));
+                                    fFirstExist = true;
+                                    break;
+                                }
+                                index++;
+                            }
+                        }
+                    }
+
+                    int index = 0;
+                    String str = "";
+                    int pageDomain = page;
+                    while (index < MainActivity.domains.length) {
+                        URL url = new URL("http://docs." + MainActivity.domains[index] + issueData.blockCData.get(position) + "?page=" + Integer.toString(pageDomain));
+                        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                        str = InputStreamToString(con.getInputStream());
+                        int sp = 0;
+                        while (true) {
+                            int p1 = str.indexOf("<h4>", sp);
+                            if (p1 == -1) {
+                                page = pageDomain + 1;
+                                break;
+                            }
+                            int p2 = str.indexOf("</h4>", sp);
+                            sp = p2 + 1;
+                            int ep = str.indexOf("<h4>", sp);
+                            if (ep == -1) {
+                                ep = Integer.MAX_VALUE;
+                            }
+                            String title = str.substring(p1 + 4, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                    .replace("&lt;", "<").replace("&gt;", ">")
+                                    .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get title
+                            p1 = str.indexOf("<dd>", sp);
+                            p2 = str.indexOf("</dd>", sp);
+                            String info = "文責者 : " + str.substring(p1 + 4, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get editor for info
+                            p1 = str.indexOf("<pre>", sp);
+                            p2 = str.indexOf("</pre>", sp);
+                            String detail = str.substring(p1 + 5, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                    .replace("&lt;", "<").replace("&gt;", ">")
+                                    .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
+                            // 採決項目がある場合
+                            p1 = str.indexOf("<dt>採決項目</dt>", p1);
+                            if (p1 != -1 && p1 < ep) {
+                                p1 = str.indexOf("<dd>", p1);
+                                p2 = str.indexOf("</dd>", p1);
+                                detail += "\n\n【採決項目】\n" + str.substring(p1 + 4, p2).replaceAll("<.+?>", "").replace("&amp;", "&")
+                                        .replace("&quot;", "\"").replace("&lt;", "<")
+                                        .replace("&gt;", ">").replace("&nbsp;", " ")
+                                        .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail ;
                             }
 
                             String overView = detail;
                             // overViewの行数を６行以内か１３０文字以内にする。
                             int pLine = 0;
-                            for(int i = 0 ; i < 6 ; i++)
-                            {
+                            for (int i = 0; i < 6; i++) {
                                 pLine = overView.indexOf("\n", pLine) + 1;
-                                if(pLine == 0) { break; }
-                            }
-                            if(pLine != 0)
-                            {
-                                overView = overView.substring(0, pLine);
-                                if(overView.length() > 90)
-                                {
-                                    overView = overView.substring(0, 90) + "...";
+                                if (pLine == 0) {
+                                    break;
                                 }
                             }
-                            else if(overView.length() > 130)
-                            {
+                            if (pLine != 0) {
+                                overView = overView.substring(0, pLine);
+                                if (overView.length() > 90) {
+                                    overView = overView.substring(0, 90) + "...";
+                                }
+                            } else if (overView.length() > 130) {
                                 overView = overView.substring(0, 130) + "...";
                             }
+                            // 表のデータを取得
+                            // 表のタイトルの配列
                             ArrayList<String> tableTitles = new ArrayList<>();
                             // 表の配列
                             ArrayList<ArrayList<ArrayList<String>>> tables = new ArrayList<>();
+                            // 表のデータを取得
+                            p1 = str.indexOf("<table", sp);
+                            if (p1 != -1 && p1 < ep) {
+                                ArrayList<ArrayList<String>> table;
+                                // 表のタイトルを取得
+                                int endpoint = str.indexOf("</table>", p1);
+                                int startpoint = p1 + 9;
+                                while (p1 != -1 && p1 < endpoint && p1 < ep) {
+                                    table = new ArrayList<>();
+                                    p2 = p1;
+                                    p1 = str.indexOf("<caption>", p1);
+                                    if (p1 != -1) {
+                                        p2 = str.indexOf("</caption>", p1);
+                                        tableTitles.add(str.substring(p1 + 9, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                                .replace("&lt;", "<").replace("&gt;", ">")
+                                                .replace("&nbsp;", " ").replace("&yen;", "¥").trim()); // get table title
+                                    } else {
+                                        tableTitles.add("");
+                                    }
+                                    // 表の行を取得するループ
+                                    p1 = str.indexOf("<tr>", p2);
+                                    while (p1 != -1 && p1 < endpoint && p1 < ep) {
+                                        p2 = str.indexOf("</tr>", p1);
+                                        String part = str.substring(p1 + 4, p2).trim();
+                                        boolean isTh = true;
+                                        int p3 = part.indexOf("<th");
+                                        ArrayList<String> row = new ArrayList<>();
+                                        if (p3 == -1) {
+                                            isTh = false;
+                                            p3 = part.indexOf("<td");
+                                        }
+                                        int p4 = 0;
+                                        while (p3 != -1) {
+                                            p3 = part.indexOf(">", p3);
+                                            p4 = isTh ? part.indexOf("</th>", p3) : part.indexOf("</td>", p3);
+                                            row.add(part.substring(p3 + 1, p4).replace("\n", "").replace(" ", "").replace("<br/>", "\n")
+                                                    .replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
+                                                    .replace("&lt;", "<").replace("&gt;", ">")
+                                                    .replace("&nbsp;", "").replace("&yen;", "¥").replace("&times;", "×").trim());
+                                            isTh = true;
+                                            p3 = part.indexOf("<th", p4);
+                                            if (p3 == -1) {
+                                                isTh = false;
+                                                p3 = part.indexOf("<td", p4);
+                                            }
+                                        }
+                                        table.add(row);
+                                        p1 = str.indexOf("<tr>", p2);
+                                    }
+                                    tables.add(table);
+                                    p1 = str.indexOf("<table", startpoint);
+                                    startpoint = p1 + 9;
+                                    endpoint = str.indexOf("</table>", p1);
+                                }
+                            }
                             issueItems.add(new IssueItem(0, title, overView, detail, tableTitles, tables, info, true));
                         }
-                    }
 
-                    URL url = new URL("http://docs.kumano-ryo.com" + issueData.blockCData.get(position) + "?page=" + Integer.toString(page));
-                    HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                    String str = InputStreamToString(con.getInputStream());
-                    int sp = 0;
-                    while(true)
-                    {
-                        int p1 = str.indexOf("<h4>", sp);
-                        if(p1 == -1)
-                        {
-                            page++;
+                        if (fFirstExist) {
+                            if (issueItems.size() > 1) {
+                                break;
+                            }
+                        } else if (issueItems.size() > 0) {
                             break;
                         }
-                        int p2 = str.indexOf("</h4>", sp);
-                        sp = p2 + 1;
-                        int ep = str.indexOf("<h4>", sp);
-                        if(ep == -1)
-                        {
-                            ep = Integer.MAX_VALUE;
-                        }
-                        String title = str.substring(p1+4, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                .replace("&lt;", "<").replace("&gt;", ">")
-                                .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get title
-                        p1 = str.indexOf("<dd>", sp);
-                        p2 = str.indexOf("</dd>", sp);
-                        String info = "文責者 : " + str.substring(p1+4, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                .replace("&lt;", "<").replace("&gt;", ">").trim(); // get editor for info
-                        p1 = str.indexOf("<pre>", sp);
-                        p2 = str.indexOf("</pre>", sp);
-                        String detail = str.substring(p1+5, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                .replace("&lt;", "<").replace("&gt;", ">")
-                                .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail
-                        // 採決項目がある場合
-                        p1 = str.indexOf("<dt>採決項目</dt>", p1);
-                        if (p1 != -1 && p1 < ep)
-                        {
-                            p1 = str.indexOf("<dd>", p1);
-                            p2 = str.indexOf("</dd>", p1);
-                            detail += "\n\n【採決項目】\n" + str.substring(p1+4, p2).replaceAll("<.+?>", "").replace("&amp;", "&")
-                                    .replace("&quot;", "\"").replace("&lt;", "<")
-                                    .replace("&gt;", ">").replace("&nbsp;", " ")
-                                    .replace("&rarr;", "→").replace("&uarr;", "↑").trim(); // get detail ;
-                        }
-
-                        String overView = detail;
-                        // overViewの行数を６行以内か１３０文字以内にする。
-                        int pLine = 0;
-                        for(int i = 0 ; i < 6 ; i++)
-                        {
-                            pLine = overView.indexOf("\n", pLine) + 1;
-                            if(pLine == 0) { break; }
-                        }
-                        if(pLine != 0)
-                        {
-                            overView = overView.substring(0, pLine);
-                            if(overView.length() > 90)
-                            {
-                                overView = overView.substring(0, 90) + "...";
-                            }
-                        }
-                        else if(overView.length() > 130)
-                        {
-                            overView = overView.substring(0, 130) + "...";
-                        }
-                        // 表のデータを取得
-                        // 表のタイトルの配列
-                        ArrayList<String> tableTitles = new ArrayList<>();
-                        // 表の配列
-                        ArrayList<ArrayList<ArrayList<String>>> tables = new ArrayList<>();
-                        // 表のデータを取得
-                        p1 = str.indexOf("<table", sp);
-                        if(p1 != -1 && p1 < ep)
-                        {
-                            ArrayList<ArrayList<String>> table;
-                            // 表のタイトルを取得
-                            int endpoint = str.indexOf("</table>", p1);
-                            int startpoint = p1 + 9;
-                            while(p1 != -1 && p1 < endpoint && p1 < ep)
-                            {
-                                table = new ArrayList<>();
-                                p2 = p1;
-                                p1 = str.indexOf("<caption>", p1);
-                                if(p1 != -1)
-                                {
-                                    p2 = str.indexOf("</caption>", p1);
-                                    tableTitles.add(str.substring(p1 + 9, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                            .replace("&lt;", "<").replace("&gt;", ">")
-                                            .replace("&nbsp;", " ").replace("&yen;", "¥").trim()); // get table title
-                                }
-                                else
-                                {
-                                    tableTitles.add("");
-                                }
-                                // 表の行を取得するループ
-                                p1 = str.indexOf("<tr>", p2);
-                                while (p1 != -1 && p1 < endpoint && p1 < ep) {
-                                    p2 = str.indexOf("</tr>", p1);
-                                    String part = str.substring(p1 + 4, p2).trim();
-                                    boolean isTh = true;
-                                    int p3 = part.indexOf("<th");
-                                    ArrayList<String> row = new ArrayList<>();
-                                    if(p3 == -1)
-                                    {
-                                        isTh = false;
-                                        p3 = part.indexOf("<td");
-                                    }
-                                    int p4 = 0;
-                                    while (p3 != -1) {
-                                        p3 = part.indexOf(">", p3);
-                                        p4 = isTh ? part.indexOf("</th>", p3) : part.indexOf("</td>", p3);
-                                        row.add(part.substring(p3 + 1, p4).replace("\n", "").replace(" ", "").replace("<br/>", "\n")
-                                                .replaceAll("<.+?>", "").replace("&amp;", "&").replace("&quot;", "\"")
-                                                .replace("&lt;", "<").replace("&gt;", ">")
-                                                .replace("&nbsp;", "").replace("&yen;", "¥").replace("&times;", "×").trim());
-                                        isTh = true;
-                                        p3 = part.indexOf("<th", p4);
-                                        if(p3 == -1)
-                                        {
-                                            isTh = false;
-                                            p3 = part.indexOf("<td", p4);
-                                        }
-                                    }
-                                    table.add(row);
-                                    p1 = str.indexOf("<tr>", p2);
-                                }
-                                tables.add(table);
-                                p1 = str.indexOf("<table", startpoint);
-                                startpoint = p1 + 9;
-                                endpoint = str.indexOf("</table>", p1);
-                            }
-                        }
-                        issueItems.add(new IssueItem(0, title, overView, detail, tableTitles, tables, info, true));
+                        index++;
                     }
                     for(int i = 0 ; i < issueItems.size() ; i++)
                     {

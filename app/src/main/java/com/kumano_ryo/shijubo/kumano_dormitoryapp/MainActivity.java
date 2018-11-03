@@ -67,6 +67,10 @@ public class MainActivity extends AppCompatActivity
             "com.kumano_ryo.shijubo.kumano_dormitoryapp.Issues.IssueDetailFragment",
     };
 
+    public final static String[] domains = {
+            "kumano-ryo.com", "kumano-ryo.xyz"
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         issueData = (IssueData)getApplication();

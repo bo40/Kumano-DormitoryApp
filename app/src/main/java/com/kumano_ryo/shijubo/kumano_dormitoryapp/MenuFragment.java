@@ -82,12 +82,23 @@ public class MenuFragment extends Fragment {
             public void run() {
                 try
                 {
-                    URL url = new URL("http://menus.kumano-ryo.com/");
-                    HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                    String str = InputStreamToString(con.getInputStream());
-
+                    int index = 0;
                     ArrayList<String> data = new ArrayList<>();
-                    ReadMenu(str, data);
+                    while (index < MainActivity.domains.length) {
+                        URL url = new URL("http://menus." + MainActivity.domains[index] + "/");
+
+                        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+                        String str = InputStreamToString(con.getInputStream());
+
+                        data = new ArrayList<>();
+                        ReadMenu(str, data);
+
+                        if(data.size() >= 20)
+                        {
+                            break;
+                        }
+                        index++;
+                    }
                     if(data.size() < 20)
                     {
                         throw new Exception();

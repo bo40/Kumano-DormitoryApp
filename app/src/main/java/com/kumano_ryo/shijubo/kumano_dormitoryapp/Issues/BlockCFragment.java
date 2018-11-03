@@ -121,35 +121,41 @@ public class BlockCFragment extends Fragment {
                 }
                 try
                 {
-                    URL url = new URL("http://docs.kumano-ryo.com/browse_document/");
-                    HttpURLConnection con = (HttpURLConnection)url.openConnection();
-                    String str = InputStreamToString(con.getInputStream());
-
+                    int index = 0;
                     ArrayList<String> data = new ArrayList<>();
-                    issueData.blockCData = new ArrayList<>();
-                    int sp = 0;
-                    int i = 0;
-                    while(true)
-                    {
-                        int p1 = str.indexOf("<dt>", sp);
-                        if(p1 == -1)
-                        {
+                    while (index < MainActivity.domains.length) {
+                        URL url = new URL("http://docs." + MainActivity.domains[index] + "/browse_document/");
+                        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                        String str = InputStreamToString(con.getInputStream());
+
+                        data = new ArrayList<>();
+                        issueData.blockCData = new ArrayList<>();
+                        int sp = 0;
+                        int i = 0;
+                        while (true) {
+                            int p1 = str.indexOf("<dt>", sp);
+                            if (p1 == -1) {
+                                break;
+                            }
+                            int p2 = str.indexOf("</dt>", sp);
+                            sp = p2 + 1;
+                            String part = str.substring(p1 + 4, p2 - 1);
+                            p1 = part.indexOf("href=\"");
+                            p2 = part.indexOf("\">");
+                            String path = part.substring(p1 + 6, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get path to issue page
+                            issueData.blockCData.add(path);
+
+                            p1 = part.indexOf(">");
+                            p2 = part.lastIndexOf("<");
+                            String title = part.substring(p1 + 1, p2).replace("&amp;", "&").replace("&quot;", "\"")
+                                    .replace("&lt;", "<").replace("&gt;", ">").trim(); // get title
+                            data.add(title);
+                        }
+                        if (data.size() > 0) {
                             break;
                         }
-                        int p2 = str.indexOf("</dt>", sp);
-                        sp = p2 + 1;
-                        String part = str.substring(p1+4, p2-1);
-                        p1 = part.indexOf("href=\"");
-                        p2 = part.indexOf("\">");
-                        String path = part.substring(p1+6, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                .replace("&lt;", "<").replace("&gt;", ">").trim(); // get path to issue page
-                        issueData.blockCData.add(path);
-
-                        p1 = part.indexOf(">");
-                        p2 = part.lastIndexOf("<");
-                        String title = part.substring(p1+1, p2).replace("&amp;", "&").replace("&quot;", "\"")
-                                .replace("&lt;", "<").replace("&gt;", ">").trim(); // get title
-                        data.add(title);
+                        index++;
                     }
                     final ArrayList<String> finalData = data;
                     handler.post(new Runnable() {
