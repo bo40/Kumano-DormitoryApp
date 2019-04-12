@@ -109,7 +109,7 @@ public class NewsFragment extends Fragment {
                 });
                 try
                 {
-                    URL url = new URL("http://gijiroku.herokuapp.com/content");
+                    URL url = new URL("https://gijiroku.herokuapp.com/content");
                     HttpURLConnection con = (HttpURLConnection)url.openConnection();
                     final String str = InputStreamToString(con.getInputStream());
 
